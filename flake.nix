@@ -36,7 +36,7 @@
           shellHook = ''
             echo "Haskell research shell:"
             echo "ghc=$(ghc --numeric-version),"
-            echo "cabal=$(cabal --numeirc-verision),"
+            echo "cabal=$(cabal --numeric-version),"
             echo "Try: cabal repl | ghci | ghcid --command 'cabal repl'"
           '';
         };
