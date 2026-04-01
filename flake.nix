@@ -24,6 +24,8 @@
           hp.hoogle
           hp.haskell-language-server
           hp.ghcid
+          hp.fourmolu
+          hp.fast-tags
           hp.ormolu
           hp.hlint
           hp.hspec-discover
