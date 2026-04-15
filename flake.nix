@@ -1,5 +1,5 @@
 {
-  description = "Haskell environment for hlox";
+  description = "Instant Haskell environment";
 
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
@@ -26,7 +26,6 @@
           hp.ghcid
           hp.fourmolu
           hp.fast-tags
-          hp.ormolu
           hp.hlint
           hp.hspec-discover
           pkgs.haskellPackages.cabal-gild
@@ -36,7 +35,7 @@
           name = "hlox-dev-shell";
           packages = commonTools;
           shellHook = ''
-            echo "Haskell research shell:"
+            echo "Haskell development environment is ready!"
             echo "ghc=$(ghc --numeric-version),"
             echo "cabal=$(cabal --numeric-version),"
             echo "Try: cabal repl | ghci | ghcid --command 'cabal repl'"
