@@ -17,6 +17,26 @@
         ghcVersion = "ghc910";
         hp = pkgs.haskell.packages.${ghcVersion};
 
+        cabalInit = pkgs.writeShellScriptBin "cabal-init" ''
+          if [ $# -ne 1 ]; then
+            echo "Usage: cabal-init <project-name>"
+            exit 1
+          fi
+          project_name=$1
+          cabal init --non-interactive \
+            --package-name="$project_name" \
+            --license=BSD-3-Clause \
+            --libandexe \
+            --tests \
+            --main-is=Main.hs \
+            --language=GHC2021
+          cabal_file=$(find . -maxdepth 1 -name "*.cabal" | head -1)
+          if [ -n "$cabal_file" ]; then
+            ${pkgs.gnused}/bin/sed -i 's/^cabal-version:.*$/cabal-version:      3.14/' "$cabal_file"
+            echo "Patched $cabal_file: cabal-version -> 3.14 (HLS compatibility)"
+          fi
+        '';
+
         # Pick a compiler once.
         commonTools = [
           hp.ghc
@@ -30,6 +50,7 @@
           hp.hspec-discover
           pkgs.haskellPackages.cabal-gild
           pkgs.hpack
+          cabalInit
         ];
       in {
         devShells.default = pkgs.mkShell {
@@ -40,27 +61,6 @@
             echo "ghc=$(ghc --numeric-version),"
             echo "cabal=$(cabal --numeric-version),"
             echo "Try: cabal repl | ghci | ghcid --command 'cabal repl'"
-
-            cabal-init() {
-              if [ $# -ne 1 ]; then
-                echo "Usage: cabal-init <project-name>"
-                return 1
-              fi
-              local project_name=$1
-              cabal init --non-interactive \
-                --package-name="$project_name" \
-                --license=BSD-3-Clause \
-                --libandexe \
-                --tests \
-                --main-is=Main.hs \
-                --language=GHC2021
-              local cabal_file
-              cabal_file=$(find . -maxdepth 1 -name "*.cabal" | head -1)
-              if [ -n "$cabal_file" ]; then
-                sed -i '''' 's/^cabal-version:.*$/cabal-version:      3.14/' "$cabal_file"
-                echo "Patched $cabal_file: cabal-version -> 3.14 (HLS compatibility)"
-              fi
-            }
           '';
         };
       }
