@@ -14,21 +14,22 @@
     flake-utils.lib.eachDefaultSystem (
       system: let
         pkgs = import nixpkgs {inherit system;};
-
-        hp = pkgs.haskell.packages.ghc910;
+        ghcVersion = "ghc910";
+        hp = pkgs.haskell.packages.${ghcVersion};
 
         # Pick a compiler once.
         commonTools = [
           hp.ghc
           hp.cabal-install
-          hp.hoogle
           hp.haskell-language-server
+          hp.hoogle
           hp.ghcid
           hp.fourmolu
           hp.fast-tags
           hp.hlint
           hp.hspec-discover
           pkgs.haskellPackages.cabal-gild
+          pkgs.hpack
         ];
       in {
         devShells.default = pkgs.mkShell {
