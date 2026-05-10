@@ -14,21 +14,44 @@
     flake-utils.lib.eachDefaultSystem (
       system: let
         pkgs = import nixpkgs {inherit system;};
+        ghcVersion = "ghc910";
+        hp = pkgs.haskell.packages.${ghcVersion};
 
-        hp = pkgs.haskell.packages.ghc910;
+        cabalInit = pkgs.writeShellScriptBin "cabal-init" ''
+          set -euo pipefail
+          if [ $# -ne 1 ]; then
+            echo "Usage: cabal-init <project-name>"
+            exit 1
+          fi
+          project_name="$1"
+          ${hp.cabal-install}/bin/cabal init --non-interactive \
+            --package-name="$project_name" \
+            --license=BSD-3-Clause \
+            --libandexe \
+            --tests \
+            --main-is=Main.hs \
+            --language=GHC2021
+          cabal_file=$(${pkgs.findutils}/bin/find . -maxdepth 1 -name "*.cabal" -print -quit)
+          if [ -n "$cabal_file" ]; then
+            ${pkgs.gnused}/bin/sed -i 's/^cabal-version:.*$/cabal-version:      3.14/' "$cabal_file"
+            echo "Patched $cabal_file: cabal-version -> 3.14 (HLS compatibility)"
+          fi
+        '';
 
         # Pick a compiler once.
         commonTools = [
           hp.ghc
           hp.cabal-install
-          hp.hoogle
           hp.haskell-language-server
+          hp.hoogle
           hp.ghcid
           hp.fourmolu
           hp.fast-tags
           hp.hlint
           hp.hspec-discover
           pkgs.haskellPackages.cabal-gild
+          pkgs.hpack
+          cabalInit
         ];
       in {
         devShells.default = pkgs.mkShell {
