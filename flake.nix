@@ -30,7 +30,7 @@
             --tests \
             --main-is=Main.hs \
             --language=GHC2021
-          cabal_file=$(find . -maxdepth 1 -name "*.cabal" | head -1)
+          cabal_file=$(${pkgs.findutils}/bin/find . -maxdepth 1 -name "*.cabal" -print -quit)
           if [ -n "$cabal_file" ]; then
             ${pkgs.gnused}/bin/sed -i 's/^cabal-version:.*$/cabal-version:      3.14/' "$cabal_file"
             echo "Patched $cabal_file: cabal-version -> 3.14 (HLS compatibility)"
